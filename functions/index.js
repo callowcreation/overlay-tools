@@ -22,7 +22,7 @@ app.get('/camera-glow', (req, res) => {
 	if(!channel) {
 		return res.status(500).send('channel param required');
 	}
-	res.render('camera-glow', {
+	res.render('camera-glow/index', {
 		channel: channel,
 		command: command,
 		color1: color1 || 'transparent',
