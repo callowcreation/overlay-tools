@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Overlay Tools Voice</title>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
+</head>
+
+<body>
+	<div style="position: relative;">
+	</div>
+	<script type="text/javascript">
+		"use strict";
+
+		const annyangOptions = { autoRestart: true, continuous: false };
+
+		const annyang_commands = {
+			'{{trigger}} *action': async (action) => {
+				console.log(`{{trigger}} attempting to invoke ${action} on behalf of {{channel}}`);
+				const result = await fetch('http://localhost:5001/voice', {
+					method: 'POST',
+					body: JSON.stringify({ action, channel: '{{channel}}' })
+				});
+				const json = await result.json();
+				console.log(json);
+			}
+		};
+
+		(function () {
+			if (annyang) {
+				// Add our commands to annyang
+				annyang.addCommands(annyang_commands);
+
+				annyang.addCallback('start', () => {
+					console.log('start');
+				});
+
+				annyang.addCallback('end', () => {
+					console.log('end');
+				});
+
+				annyang.addCallback('result', (phrases) => {
+					console.log({ phrases });
+				});
+
+				annyang.addCallback('resultMatch', (userSaid, commandText, phrases) => {
+					console.log({ userSaid, commandText, phrases });
+				});
+
+				annyang.addCallback('resultNoMatch ', (userSaid, commandText, phrases) => {
+					console.log({ userSaid, commandText, phrases });
+				});
+				//annyang.debug({newState: true});
+				// Start listening. You can call this here, or attach this call to an event, button, etc.
+				annyang.start(annyangOptions);
+			}
+		})();
+
+	</script>
+</body>
+
+</html>
