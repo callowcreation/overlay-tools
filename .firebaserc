@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "prod": "overlay-tools",
+    "dev": "overlay-tools-dev"
+  }
+}

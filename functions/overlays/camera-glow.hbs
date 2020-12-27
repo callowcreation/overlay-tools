@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>naivebot Camera Glow</title>
+	<style>
+		/* 003random inspired from custom command cam glow */
+
+		:root {
+			/*--glow-color1: {{color1}};*/
+			--glow-color1: {{color1}};
+			--glow-color2: {{color2}};
+			--glow-color3: {{color3}};
+		}
+
+		.center {
+			left: calc(50% - 91px);
+			bottom: calc(50% - 91px);
+		}
+
+		.round {
+			border-radius: 100%;
+		}
+
+		.glow-loop {
+			animation: glow 1.5s infinite alternate;
+		}
+
+		@keyframes glow {
+			from {
+				box-shadow:
+					0 0 10px var(--glow-color1),
+					0 0 20px var(--glow-color1),
+					0 0 30px var(--glow-color1),
+
+					0 0 40px var(--glow-color2),
+					0 0 60px var(--glow-color2),
+					0 0 70px var(--glow-color2);
+			}
+
+			to {
+				box-shadow:
+					0 0 30px var(--glow-color2),
+					0 0 40px var(--glow-color2),
+					0 0 50px var(--glow-color2),
+
+					0 0 50px var(--glow-color3),
+					0 0 60px var(--glow-color3),
+					0 0 70px var(--glow-color3);
+			}
+		}
+	</style>
+	<script src="../js/tmi.min.js"></script>
+</head>
+
+<body>
+	<div style="position: relative;">
+		<div id="glow" class="glow-loop center round"
+			style="position:fixed; height: 182px; width: 182px;"></div>
+	</div>
+	<script type="text/javascript">
+		"use strict";
+
+		const clientOptions = {
+			options: {
+				debug: false
+			},
+			channels: ['{{channel}}']
+		};
+
+		const client = new tmi.client(clientOptions);
+
+		const MAX_SEC = +'{{max_sec}}' || 60 * 2;
+		let currentColors = ['#00000000', '#00000000', '#00000000'];
+		let timeout = null;
+
+		function handleMessage(channel, user, message, self) {
+			if(self) return;
+			if(channel !== '#{{channel}}') return;
+
+			const command = message.split(' ')[0];
+			if(command !== ('{{command}}' || '!camera-glow')) return;
+
+			const colors = message.substr(command.length).split(',').map(x => x.trim());
+			console.log(colors);
+
+			currentColors = [...colors, ...currentColors];
+			if (currentColors.length > 3) {
+				currentColors.length = 3;
+			}
+
+			updateViewColor(currentColors);
+			
+			timeout = setTimeout(() => {
+				
+				clearTimeout(timeout);
+
+				timeout = null;
+				currentColors = ['#00000000', '#00000000', '#00000000'];
+				updateViewColor(currentColors);
+			}, 1000 * MAX_SEC);
+
+		}
+
+		function updateViewColor(colors) {
+			document.documentElement.style.setProperty('--glow-color1', colors[0]);
+			document.documentElement.style.setProperty('--glow-color2', colors[1]);
+			document.documentElement.style.setProperty('--glow-color3', colors[2]);
+		}
+
+		(function () {
+
+			client.addListener('message', handleMessage);
+			client.connect();
+
+		})();
+
+	</script>
+</body>
+
+</html>
