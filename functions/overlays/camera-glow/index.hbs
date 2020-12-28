@@ -17,8 +17,8 @@
 		}
 
 		.center {
-			left: calc(50% - 91px);
-			bottom: calc(50% - 91px);
+			left: calc(50% - {{halfWidth}}px);
+			bottom: calc(50% - {{halfHeight}}px);
 		}
 
 		.round {
@@ -58,8 +58,8 @@
 
 <body>
 	<div style="position: relative;">
-		<div id="glow" class="glow-loop center round"
-			style="position:fixed; height: 182px; width: 182px;"></div>
+		<div id="glow" class="glow-loop center {{shape}}"
+			style="position:fixed; width: {{width}}px; height: {{height}}px;"></div>
 	</div>
 	<script type="text/javascript">
 		"use strict";

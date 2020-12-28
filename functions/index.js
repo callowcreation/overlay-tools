@@ -11,40 +11,47 @@ app.engine('hbs', engines.handlebars);
 app.set('views', ['./overlays']);
 app.set('view engine', 'hbs');
 
+const MAX_INPUT_LENGTH = 100;
 
+function validateOrThrow(params) {
+	for (const key in params) {
+		if (params[key] && params[key].length > MAX_INPUT_LENGTH) {
+			throw new Error(`Invalid value at key ${key}`);
+		}
+	}
+}
 // hosting for overlay-tools
 app.get('/camera-glow', (req, res) => {
 
-	const qs = require('querystring');
-	const url = req.url.split('?')[1];
-	const req_data = qs.parse(url);
-	const { channel, command, color1, color2, color3 } = req_data;
-	if (!channel) {
+	validateOrThrow(req.query);
+	validateOrThrow(req.params);
+
+	if (!req.query.channel) {
 		return res.status(500).send('channel param required');
 	}
-	res.render('camera-glow/index', {
-		channel: channel,
-		command: command,
-		color1: color1 || 'transparent',
-		color2: color2 || 'transparent',
-		color3: color3 || 'transparent'
-	});
+	const data = req.query;
+	data.color1 = data.color1 || 'transparent';
+	data.color2 = data.color2 || 'transparent';
+	data.color3 = data.color3 || 'transparent';
+	data.shape = data.shape || 'round';
+	data.width = data.width || 182;
+	data.height = data.height || 182;
+	data.halfWidth = data.height / 2;
+	data.halfHeight = data.height / 2;
+
+	res.render('camera-glow/index', data);
 });
 
 
 app.get('/voice', (req, res) => {
 
-	const qs = require('querystring');
-	const url = req.url.split('?')[1];
-	const req_data = qs.parse(url);
-	const { channel, trigger } = req_data;
-	if (!channel) {
+	validateOrThrow(req.query);
+	validateOrThrow(req.params);
+
+	if (!req.query.channel) {
 		return res.status(500).send('channel param required');
 	}
-	res.render('voice/index', {
-		channel: channel,
-		trigger: trigger || 'command'
-	});
+	res.render('voice/index', req.query);
 });
 
 app.post('/voice', (req, res) => {
